@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>QuickCard Study Tool</title>
+</head>
+
+<body>
+  <p>Instructions: </p>
+  <p>1. Download the html file and open separately in an internet browser.</p>
+  <p>2. Using excel, enter questions in one column and answers in the next adjacent column.</p>
+  <p>3. Copy and paste both columns together into a notepad file and save the file (your deck).</p>
+  <p>4. Upload the file below and enter your answers into the prompt box. If your answer is incorrect, you will be asked the question again after going through all items.</p>
+  <p>5. When you are done with a deck, refresh the page to restart. If you want to restart in the middle of a deck, just close out and reopen this html file.</p>
+  <p>6. Let me know of any improvements that can be made and other ways this can be useful :)</p>
+  <br>
+  <input type="file" id="inputfile">
+  <br>
+
+  <script type="text/javascript">
+
+//when user uploads file, start the function. Start with creating filereader object and reading contents of file
+    document.getElementById('inputfile').addEventListener('change', function() {
+      var fr=new FileReader();
+      fr.readAsText(this.files[0]);
+
+//onload contents of the file into var contents. Turn into array of question-answer pairs (split by new line)
+      fr.onload=function(){
+        var contents = fr.result;
+        var contentsarray = contents.split(/[\n]/);
+
+// create dictionary (decks) of question-answer pairs as keys and values. Exclude empty strings
+        var deck = [];
+        var deckincorrect = [];
+
+        for (var i = 0; i < contentsarray.length; i++) {
+          if (contentsarray[i] != "" && contentsarray[i][0] != "\t") {
+            var temparray = contentsarray[i].split(/[\t]/);
+            deck.push({
+              key: temparray[0],
+              value: temparray[1].replace(/[\n\r]/g, '')
+            });
+          };
+        };
+
+// shuffle deck using Fisher-Yates Shuffle
+        function shuffle(array) {
+          var currentIndex = array.length, temporaryValue, randomIndex;
+
+          // Starts at the top of the deck (highest index).
+          // While there remain elements to shuffle...
+          while (0 !== currentIndex) {
+
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+
+            // And swap it with the current element.
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+          };
+
+          return array;
+        };
+        shuffle(deck);
+
+// Round 1 function
+        function promptsround1() {
+          for (var i=0; i < deck.length; i++) {
+            var question = JSON.stringify(deck[i].key).replace(/["]/g,'');
+            var answer = JSON.stringify(deck[i].value).replace(/["]/g,'');
+
+            var askans = prompt(question);
+            if (askans != null) {
+              if (askans==answer) {
+              };
+              if (askans!=answer) {
+                alert("No, the answer is " + answer);
+                deckincorrect.push({
+                  key: question,
+                  value: answer
+                });
+              };
+            };
+          };
+        };
+
+// Round 2 function
+        function promptsround2() {
+          for (var i=0; i < deckincorrect.length; i++) {
+            var question = deckincorrect[i].key;
+            var answer = deckincorrect[i].value;
+              var askans = prompt(question);
+              if (askans != null) {
+                if (askans == answer) {
+                };
+                if (askans != answer) {
+                  alert("No, the answer is " + answer);
+                };
+              };
+          };
+        };
+
+      promptsround1();
+      promptsround2();
+      };
+    });
+
+  </script>
+</body>
+
+</html>
